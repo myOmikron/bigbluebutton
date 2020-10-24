@@ -14,8 +14,8 @@ then
 	tar -xf bigbluebutton-html5.tar.gz -C /usr/share/meteor
 
 	echo "Write hostname into setting.yml"
-	hostname = $(hostname --fqdn)
-	sed -i "s/bbb-dev.omikron.dev/$hostname/g" /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+	host_name=$(hostname --fqdn)
+	sed -i "s/bbb-dev.omikron.dev/$host_name/g" /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
 	echo "Ensure correct ownership"
 	chown meteor:meteor /usr/share/meteor/bundle -R

@@ -317,6 +317,7 @@
     "app.submenu.video.qualityOptionLabel": "Videoqualität auswählen",
     "app.submenu.video.participantsCamLabel": "Webcamvideo anderer Teilnehmer darstellen",
     "app.settings.applicationTab.label": "Anwendung",
+    "app.settings.notificationTab.label": "Benachrichtigungen",
     "app.settings.audioTab.label": "Audio",
     "app.settings.videoTab.label": "Video",
     "app.settings.usersTab.label": "Teilnehmer",

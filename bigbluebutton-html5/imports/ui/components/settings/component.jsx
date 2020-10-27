@@ -19,6 +19,10 @@ const intlMessages = defineMessages({
     id: 'app.settings.applicationTab.label',
     description: 'label for application tab',
   },
+  notificationTabLabel: {
+    id: 'app.settings.notificationTab.label',
+    description: 'label for notification tab',
+  },
   audioTabLabel: {
     id: 'app.settings.audioTab.label',
     description: 'label for audio tab',
@@ -167,7 +171,7 @@ class Settings extends Component {
             selectedClassName={styles.selected}
           >
             <Icon iconName="alert" className={styles.icon} />
-            <span id="notificationTab">Notification</span>
+            <span id="notificationTab">{intl.formatMessage(intlMessages.notificationTabLabel)}</span>
           </Tab>
           <Tab
             className={styles.tabSelector}

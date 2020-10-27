@@ -317,6 +317,7 @@
     "app.submenu.video.qualityOptionLabel": "Choose the video quality",
     "app.submenu.video.participantsCamLabel": "Viewing participants webcams",
     "app.settings.applicationTab.label": "Application",
+    "app.settings.notificationTab.label": "Notification",
     "app.settings.audioTab.label": "Audio",
     "app.settings.videoTab.label": "Video",
     "app.settings.usersTab.label": "Participants",

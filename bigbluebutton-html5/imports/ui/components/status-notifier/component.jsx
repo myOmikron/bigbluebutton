@@ -86,7 +86,7 @@ class StatusNotifier extends Component {
     const { emojiUsers, intl } = this.props;
     if (emojiUsers.length === 0) return '';
 
-    const _names = emojiUsers.map(u => u.name);
+    const _names = emojiUsers.sort((u1, u2) => u1.emojiTime - u2.emojiTime).map(u => u.name);
     const { length } = _names;
     const and = intl.formatMessage(messages.and);
     let formattedNames = '';
@@ -113,7 +113,7 @@ class StatusNotifier extends Component {
 
   raisedHandAvatars() {
     const { emojiUsers, clearUserStatus } = this.props;
-    let users = emojiUsers;
+    let users = emojiUsers.sort((u1, u2) => u1.emojiTime - u2.emojiTime);
     if (emojiUsers.length > MAX_AVATAR_COUNT) users = users.slice(0, MAX_AVATAR_COUNT);
 
     const avatars = users.map(u => (

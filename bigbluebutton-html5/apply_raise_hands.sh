@@ -2,12 +2,14 @@
 
 if [ $(whoami) == "root" ]
 then
-    if [ ! $1 == "-k" ]
+    if [ ! $0 == "-k" ]
     then
 	    if [ -f "bigbluebutton-html5.tar.gz" ]
 	    then
+            echo "Remove old tar.gz"
             rm bigbluebutton-html5.tar.gz
         fi
+        echo "Wget new tar.gz"
 	    wget "https://github.com/myOmikron/bigbluebutton/releases/download/v2.2.28/bigbluebutton-html5.tar.gz"
     fi
 

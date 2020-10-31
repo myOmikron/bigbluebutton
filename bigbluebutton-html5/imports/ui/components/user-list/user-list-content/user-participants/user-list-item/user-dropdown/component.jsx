@@ -299,12 +299,21 @@ class UserDropdown extends PureComponent {
 
     if (allowedToChangeStatus && isMeteorConnected) {
       // Copy raiseHand to the upper menu layer
-      actions.push(this.makeDropdownItem(
-        'raiseHand',
-        intl.formatMessage({ id: 'app.actionsBar.emojiMenu.raiseHandLabel' }),
-        () => { setEmojiStatus(user.userId, 'raiseHand'); this.resetMenuState(); },
-        getEmojiList.raiseHand,
-      ));
+      if (user.emoji !== 'raiseHand') {
+        actions.push(this.makeDropdownItem(
+          'raiseHand',
+          intl.formatMessage({ id: 'app.actionsBar.actionsDropdown.raiseHand' }),
+          () => { setEmojiStatus(user.userId, 'raiseHand'); this.resetMenuState(); },
+          getEmojiList.raiseHand,
+        ));
+      } else {
+        actions.push(this.makeDropdownItem(
+          'lowerHand',
+          intl.formatMessage({ id: 'app.actionsBar.actionsDropdown.lowerHand' }),
+          () => this.onActionsHide(setEmojiStatus(user.userId, 'none')),
+          getEmojiList.raiseHand,
+        ));
+      }
 
       actions.push(this.makeDropdownItem(
         'setstatus',

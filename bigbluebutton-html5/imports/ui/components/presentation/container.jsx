@@ -46,6 +46,7 @@ export default withTracker(({ podId }) => {
     currentPresentation: PresentationAreaService.getCurrentPresentation(podId),
     notify,
     zoomSlide: PresentationToolbarService.zoomSlide,
+    podId,
     layoutSwapped,
     toggleSwapLayout: MediaService.toggleSwapLayout,
     publishedPoll: Meetings.findOne({ meetingId: Auth.meetingID }, {

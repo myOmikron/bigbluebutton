@@ -21,7 +21,7 @@ then
 
 	echo "Write hostname into setting.yml"
 	host_name=$(hostname --fqdn)
-	sed -i "s/bbb-dev.omikron.dev/$host_name/g" /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+	sed -i "s/wsUrl: .*/wsUrl: wss:\/\/$host_name\/bbb-webrtc-sfu/g" /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
 	echo "Ensure correct ownership"
 	chown meteor:meteor /usr/share/meteor/bundle -R

@@ -23,11 +23,12 @@ const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
+const SIPJS_HACK_VIA_WS = MEDIA.sipjsHackViaWs;
 const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
 const CALL_CONNECT_TIMEOUT = 20000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
-const USER_AGENT_RECONNECTION_ATTEMPTS = 7;
+const USER_AGENT_RECONNECTION_ATTEMPTS = 3;
 const USER_AGENT_RECONNECTION_DELAY_MS = 5000;
 const USER_AGENT_CONNECTION_TIMEOUT_MS = 5000;
 const ICE_GATHERING_TIMEOUT = MEDIA.iceGatheringTimeout || 5000;
@@ -373,11 +374,13 @@ class SIPSession {
         sessionDescriptionHandlerFactoryOptions: {
           peerConnectionConfiguration: {
             iceServers,
+            sdpSemantics: 'plan-b',
           },
         },
         displayName: callerIdName,
         register: false,
         userAgentString: 'BigBlueButton',
+        hackViaWs: SIPJS_HACK_VIA_WS,
       });
 
       const handleUserAgentConnection = () => {
@@ -467,13 +470,13 @@ class SIPSession {
 
         const code = getErrorCode(error);
 
-
+        //Websocket's 1006 is currently mapped to BBB's 1002
         if (code === 1006) {
           this.stopUserAgent();
 
           this.callback({
             status: this.baseCallStates.failed,
-            error: 1006,
+            error: 1002,
             bridgeError: 'Websocket failed to connect',
           });
           return reject({
@@ -763,7 +766,29 @@ class SIPSession {
           onconnectionstatechange: (event) => {
             const peer = event.target;
 
+            logger.info({
+              logCode: 'sip_js_connection_state_change',
+              extraInfo: {
+                connectionStateChange: peer.connectionState,
+                callerIdName: this.user.callerIdName,
+              },
+            }, 'ICE connection state change - Current connection state - '
+                + `${peer.connectionState}`);
+
             switch (peer.connectionState) {
+              case 'failed':
+                // Chrome triggers 'failed' for connectionState event, only
+                handleIceNegotiationFailed(peer);
+                break;
+              default:
+                break;
+            }
+          },
+          oniceconnectionstatechange: (event) => {
+            const peer = event.target;
+
+            switch (peer.iceConnectionState) {
+              case 'completed':
               case 'connected':
                 if (iceCompleted) {
                   logger.info({
@@ -785,7 +810,7 @@ class SIPSession {
                     currentState: peer.connectionState,
                     callerIdName: this.user.callerIdName,
                   },
-                }, 'ICE connection success. Current state - '
+                }, 'ICE connection success. Current ICE Connection state - '
                     + `${peer.iceConnectionState}`);
 
                 clearTimeout(callTimeout);

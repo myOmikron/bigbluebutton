@@ -2,16 +2,25 @@
 
 if [ $(whoami) == "root" ]
 then
-    if [ ! $0 == "-k" ]
-    then
-	    if [ -f "bigbluebutton-html5.tar.gz" ]
-	    then
-            echo "Remove old tar.gz"
-            rm bigbluebutton-html5.tar.gz
-        fi
-        echo "Wget new tar.gz"
-	    wget "https://github.com/myOmikron/bigbluebutton/releases/download/v2.2.28/bigbluebutton-html5.tar.gz"
-    fi
+	if [ ! $0 == "-k" ]
+	then
+		if [ -f "apply_config.py" ]
+		then
+			echo "Remove old apply_config.py"
+			rm apply_config.py
+		fi
+		echo "Wget new apply_config.py"
+		wget "https://raw.githubusercontent.com/myOmikron/bigbluebutton/scripts/bigbluebutton-html5/apply_config.py" 
+		chmod +x apply_config.py
+
+		if [ -f "bigbluebutton-html5.tar.gz" ]
+		then
+			echo "Remove old tar.gz"
+			rm bigbluebutton-html5.tar.gz
+		fi
+		echo "Wget new tar.gz"
+		wget "https://github.com/myOmikron/bigbluebutton/releases/download/v2.2.28/bigbluebutton-html5.tar.gz"
+	fi
 
 	echo "Backup current bundle to bundle.bkp"
 	cp -R /usr/share/meteor/bundle /usr/share/meteor/bundle.bkp
@@ -22,6 +31,9 @@ then
 	echo "Write hostname into setting.yml"
 	host_name=$(hostname --fqdn)
 	sed -i "s/wsUrl: .*/wsUrl: wss:\/\/$host_name\/bbb-webrtc-sfu/g" /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+
+	echo "Adjust config"
+	./apply_config.py /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
 	echo "Ensure correct ownership"
 	chown meteor:meteor /usr/share/meteor/bundle -R

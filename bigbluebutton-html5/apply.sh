@@ -19,7 +19,7 @@ then
 			rm bigbluebutton-html5.tar.gz
 		fi
 		echo "Wget new tar.gz"
-		wget "https://github.com/myOmikron/bigbluebutton/releases/download/v2.2.28/bigbluebutton-html5.tar.gz"
+		wget "https://github.com/myOmikron/bigbluebutton/releases/latest/download/bigbluebutton-html5.tar.gz"
 	fi
 
 	echo "Backup current bundle to bundle.bkp"

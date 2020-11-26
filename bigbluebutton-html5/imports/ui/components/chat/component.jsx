@@ -8,6 +8,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
 import MessageForm from './message-form/container';
 import MessageList from './message-list/container';
+import MessageListItem from './message-list/message-list-item/component';
 import ChatDropdown from './chat-dropdown/component';
 
 const ELEMENT_ID = 'chat-messages';
@@ -28,6 +29,7 @@ const Chat = (props) => {
     chatName,
     title,
     messages,
+    welcomeMsg,
     partnerIsLoggedOut,
     isChatLocked,
     actions,
@@ -91,6 +93,21 @@ const Chat = (props) => {
             : <ChatDropdown {...{ meetingIsBreakout, isMeteorConnected, amIModerator }} />
         }
       </header>
+      {
+        chatID === 'public'
+          ? (
+            <MessageListItem
+              handleReadMessage={actions.handleReadMessage}
+              key={welcomeMsg.id}
+              messages={welcomeMsg.content}
+              user={welcomeMsg.sender}
+              time={welcomeMsg.time}
+              chatAreaId={ELEMENT_ID}
+              lastReadMessageTime={lastReadMessageTime}
+              scrollArea={null}
+            />
+          ) : null
+      }
       <MessageList
         id={ELEMENT_ID}
         chatId={chatID}

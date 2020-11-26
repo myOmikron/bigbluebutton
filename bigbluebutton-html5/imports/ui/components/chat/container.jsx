@@ -60,6 +60,7 @@ class ChatContainer extends PureComponent {
 export default injectIntl(withTracker(({ intl }) => {
   const chatID = Session.get('idChatOpen');
   let messages = [];
+  let welcomeMsg = null;
   let isChatLocked = ChatService.isChatLocked(chatID);
   let title = intl.formatMessage(intlMessages.titlePublic);
   let chatName = title;
@@ -77,7 +78,7 @@ export default injectIntl(withTracker(({ intl }) => {
     const time = currentUser.loginTime;
     const welcomeId = `welcome-msg-${time}`;
 
-    const welcomeMsg = {
+    welcomeMsg = {
       id: welcomeId,
       content: [{
         id: welcomeId,
@@ -103,17 +104,10 @@ export default injectIntl(withTracker(({ intl }) => {
       sender: null,
     };
 
-    const messagesBeforeWelcomeMsg = ChatService.reduceAndMapGroupMessages(
-      messages.filter(message => message.timestamp < time),
-    );
-    const messagesAfterWelcomeMsg = ChatService.reduceAndMapGroupMessages(
-      messages.filter(message => message.timestamp >= time),
-    );
+    const reducedMessages = ChatService.reduceAndMapGroupMessages(messages);
 
-    const messagesFormated = messagesBeforeWelcomeMsg
-      .concat(welcomeMsg)
-      .concat((amIModerator && modOnlyMessage) ? moderatorMsg : [])
-      .concat(messagesAfterWelcomeMsg);
+    const messagesFormated = reducedMessages
+      .concat((amIModerator && modOnlyMessage) ? moderatorMsg : []);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
   } else if (chatID) {
@@ -169,6 +163,7 @@ export default injectIntl(withTracker(({ intl }) => {
     chatName,
     title,
     messages,
+    welcomeMsg,
     partnerIsLoggedOut,
     isChatLocked,
     isMeteorConnected,

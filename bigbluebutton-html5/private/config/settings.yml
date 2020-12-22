@@ -36,6 +36,8 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 12.
     breakoutRoomLimit: 8
+    # https://github.com/bigbluebutton/bigbluebutton/pull/10826
+    customHeartbeat: true
     defaultSettings:
       application:
         animations: true
@@ -245,6 +247,7 @@ public:
     time: 5000
   chat:
     enabled: true
+    bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
     max_message_length: 5000
@@ -279,6 +282,7 @@ public:
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
     cacheStunTurnServers: true
     fallbackStunServer:  ''
+    recvonlyIceGatheringCheck: true
     mediaTag: "#remote-media"
     callTransferTimeout: 5000
     callHangupTimeout: 2000
@@ -291,6 +295,17 @@ public:
     #so far. Increasing this value might help avoiding 1004 error when
     #user activates microphone.
     iceGatheringTimeout: 5000
+    sipjsHackViaWs: false
+    #Websocket keepAlive interval (seconds). You may set this to prevent
+    #websocket disconnection in some environments. When set, BBB will send
+    #'\r\n\r\n' string through SIP.js's websocket. If not set, default value
+    #is 0.
+    websocketKeepAliveInterval: 30
+    #Debounce time (seconds) for sending SIP.js's websocket keep alive message.
+    #If not set, default value is 10.
+    websocketKeepAliveDebounce: 10
+    #Trace sip/audio messages in browser. If not set, default value is false.
+    traceSip: false
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
@@ -419,7 +434,7 @@ public:
       - pencil
       - hand
   clientLog:
-    server: { enabled: true, level: info }
+    server: { enabled: false, level: info }
     console: { enabled: true, level: debug }
     external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true, logTag: "" }
 private:
@@ -440,6 +455,11 @@ private:
     timeout: 5000
     password: null
     debug: false
+    metrics:
+      queueMetrics: false
+      metricsDumpIntervalMs: 60000
+      metricsFolderPath: METRICS_FOLDER
+      removeMeetingOnEnd: true
     channels:
       toAkkaApps: to-akka-apps-redis-channel
       toThirdParty: to-third-party-redis-channel
@@ -463,6 +483,8 @@ private:
       enabled: false
     heapdump:
       enabled: false
+      heapdumpFolderPath: HEAPDUMP_FOLDER
+      heapdumpIntervalMs: 3600000
   minBrowserVersions:
     - browser: chrome
       version: 72

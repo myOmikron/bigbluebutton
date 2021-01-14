@@ -28,10 +28,6 @@ then
 	echo "Overwrite html5 module with custom build"
 	tar -xf bigbluebutton-html5.tar.gz -C /usr/share/meteor
 
-	echo "Write hostname into setting.yml"
-	host_name=$(hostname --fqdn)
-	sed -i "s/wsUrl: .*/wsUrl: wss:\/\/$host_name\/bbb-webrtc-sfu/g" /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
-
 	echo "Adjust config"
 	./apply_config.py /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 

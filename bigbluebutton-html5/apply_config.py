@@ -26,6 +26,12 @@ if __name__ == "__main__":
 	)
 
 	content = re.sub(
+		r"    wsUrl: [a-zA-Z_\.:/]+",
+		r"    wsUrl: wss://{}/bbb-webrtc-sfu".format(hostname),
+		content
+	)
+
+	content = re.sub(
                 r"  note:\n"
                 r"    enabled: (true|false)\n"
                 r"    url: [a-zA-Z_\.:/]+",

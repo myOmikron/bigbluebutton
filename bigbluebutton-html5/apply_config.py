@@ -10,7 +10,7 @@ if __name__ == "__main__":
 	with open(file_) as f:
 		content = f.read()
 
-	conent = re.sub(
+	content = re.sub(
 		r"    sipjsHackViaWs: false",
 		r"    sipjsHackViaWs: true",
 		content

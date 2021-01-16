@@ -11,13 +11,6 @@ if __name__ == "__main__":
 		content = f.read()
 
 	content = re.sub(
-		r"    sipjsHackViaWs: false",
-		r"    sipjsHackViaWs: true",
-		content
-
-	)
-
-	content = re.sub(
 		r"        raiseHandAudioAlerts: (true|false)\n"
 		r"        raiseHandPushAlerts: (true|false)",
 		r"        raiseHandAudioAlerts: true\n"

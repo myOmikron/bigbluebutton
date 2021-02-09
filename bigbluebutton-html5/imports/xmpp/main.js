@@ -35,18 +35,18 @@ function onMessage(stanza) {
   const body = bodys[0];
   const msg = Strophe.xmlunescape(Strophe.getText(body));
 
-  const delays = stanza.getElementsByTagName('delay');
+  /*const delays = stanza.getElementsByTagName('delay');
   let timestamp;
   if (delays[0] !== undefined) {
     timestamp = delays[0].getAttribute('stamp');
   } else {
     timestamp = null;
   }
+  logger.info(timestamp);*/
 
   const sender = Strophe.getResourceFromJid(from);
 
   ChatService.sendGroupMessage(`${sender} wrote:\n${msg}\n`);
-  logger.info(timestamp);
   return true;
 }
 

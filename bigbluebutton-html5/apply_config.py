@@ -10,12 +10,11 @@ if __name__ == "__main__":
 	with open(file_) as f:
 		content = f.read()
 
-	content = re.sub(
-		r"    sipjsHackViaWs: false",
-		r"    sipjsHackViaWs: true",
-		content
-
-	)
+	#content = re.sub(
+	#	r"    sipjsHackViaWs: false",
+	#	r"    sipjsHackViaWs: true",
+	#	content
+	#)
 
 	content = re.sub(
 		r"        raiseHandAudioAlerts: (true|false)\n"

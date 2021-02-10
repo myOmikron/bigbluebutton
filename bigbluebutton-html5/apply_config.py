@@ -19,18 +19,18 @@ if __name__ == "__main__":
 	)
 
 	content = re.sub(
-		r"    wsUrl: [a-zA-Z_\.:/]+",
-		r"    wsUrl: wss://{}/bbb-webrtc-sfu".format(hostname),
+		r"    wsUrl: \S+\n",
+		r"    wsUrl: wss://{}/bbb-webrtc-sfu\n".format(hostname),
 		content
 	)
 
 	content = re.sub(
                 r"  note:\n"
                 r"    enabled: (true|false)\n"
-                r"    url: [a-zA-Z_\.:/]+",
+                r"    url: \S+\n",
 	        r"  note:\n"
                 r"    enabled: true\n"
-                r"    url: https://{}/pad".format(hostname),
+                r"    url: https://{}/pad\n".format(hostname),
 		content
 	)
 

@@ -17,6 +17,26 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.animationsLabel',
     description: 'animations label',
   },
+  audioAlertLabel: {
+    id: 'app.submenu.application.audioAlertLabel',
+    description: 'audio notification label',
+  },
+  audioFilterLabel: {
+    id: 'app.submenu.application.audioFilterLabel',
+    description: 'audio filters label',
+  },
+  pushAlertLabel: {
+    id: 'app.submenu.application.pushAlertLabel',
+    description: 'push notifiation label',
+  },
+  userJoinAudioAlertLabel: {
+    id: 'app.submenu.application.userJoinAudioAlertLabel',
+    description: 'audio notification when a user joins',
+  },
+  userJoinPushAlertLabel: {
+    id: 'app.submenu.application.userJoinPushAlertLabel',
+    description: 'push notification when a user joins',
+  },
   fontSizeControlLabel: {
     id: 'app.submenu.application.fontSizeControlLabel',
     description: 'label for font size ontrol',
@@ -75,6 +95,8 @@ class ApplicationMenu extends BaseMenu {
         '18px',
         '20px',
       ],
+      audioFilterEnabled: ApplicationMenu.isAudioFilterEnabled(props
+        .settings.microphoneConstraints),
     };
   }
 
@@ -97,6 +119,49 @@ class ApplicationMenu extends BaseMenu {
       isLargestFontSize: fontIndex >= (fontSizes.length - 1),
       fontSizes,
     });
+  }
+
+  static isAudioFilterEnabled(_constraints) {
+    if (typeof _constraints === 'undefined') return true;
+
+    const _isConstraintEnabled = (constraintValue) => {
+      switch (typeof constraintValue) {
+        case 'boolean':
+          return constraintValue;
+        case 'string':
+          return constraintValue === 'true';
+        case 'object':
+          return !!(constraintValue.exact || constraintValue.ideal);
+        default:
+          return false;
+      }
+    };
+
+    let isAnyFilterEnabled = true;
+
+    const constraints = _constraints && (typeof _constraints.advanced === 'object')
+      ? _constraints.advanced
+      : _constraints || {};
+
+    isAnyFilterEnabled = Object.values(constraints).find(
+      constraintValue => _isConstraintEnabled(constraintValue),
+    );
+
+    return isAnyFilterEnabled;
+  }
+
+  handleAudioFilterChange() {
+    const _audioFilterEnabled = !ApplicationMenu.isAudioFilterEnabled(this
+      .state.settings.microphoneConstraints);
+    const _newConstraints = {
+      autoGainControl: _audioFilterEnabled,
+      echoCancellation: _audioFilterEnabled,
+      noiseSuppression: _audioFilterEnabled,
+    };
+
+    const obj = this.state;
+    obj.settings.microphoneConstraints = _newConstraints;
+    this.handleUpdateSettings(this.state.settings, obj.settings);
   }
 
   handleUpdateFontSize(size) {
@@ -220,6 +285,27 @@ class ApplicationMenu extends BaseMenu {
               </span>
             </div>
           </div>
+
+          <div className={styles.row}>
+            <div className={styles.col} aria-hidden="true">
+              <div className={styles.formElement}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.audioFilterLabel)}
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                <Toggle
+                  icons={false}
+                  defaultChecked={this.state.audioFilterEnabled}
+                  onChange={() => this.handleAudioFilterChange()}
+                  ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
+                />
+              </div>
+            </div>
+          </div>
+
           <hr className={styles.separator} />
           <div className={styles.row}>
             <div className={styles.col}>

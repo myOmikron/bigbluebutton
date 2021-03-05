@@ -24,7 +24,6 @@ import Base from '/imports/startup/client/base';
 import JoinHandler from '/imports/ui/components/join-handler/component';
 import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/component';
 import Subscriptions from '/imports/ui/components/subscriptions/component';
-import '/imports/xmpp/main';
 
 Meteor.startup(() => {
   // Logs all uncaught exceptions to the client logger

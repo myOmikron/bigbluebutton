@@ -1,9 +1,11 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import {
-  generateNoteId,
   createPadURL,
   getReadOnlyIdURL,
+} from '/imports/api/common/server/etherpad';
+import {
+  generatePadId,
   isEnabled,
   getDataFromResponse,
 } from '/imports/api/note/server/helpers';
@@ -13,15 +15,15 @@ import axios from 'axios';
 export default function createNote(meetingId) {
   // Avoid note creation if this feature is disabled
   if (!isEnabled()) {
-    Logger.warn(`Notes are disabled for ${meetingId}`);
+    Logger.warn(`Shared notes are disabled`);
     return;
   }
 
   check(meetingId, String);
 
-  const noteId = generateNoteId(meetingId);
-
+  const noteId = generatePadId(meetingId);
   const createURL = createPadURL(noteId);
+
   axios({
     method: 'get',
     url: createURL,
@@ -30,6 +32,7 @@ export default function createNote(meetingId) {
     const { status } = responseOuter;
     if (status !== 200) {
       Logger.error(`Could not get note info for ${meetingId} ${status}`);
+      return;
     }
     const readOnlyURL = getReadOnlyIdURL(noteId);
     axios({

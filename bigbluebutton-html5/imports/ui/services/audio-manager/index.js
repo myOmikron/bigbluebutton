@@ -30,11 +30,22 @@ const CALL_STATES = {
   AUTOPLAY_BLOCKED: 'autoplayBlocked',
 };
 
+const BREAKOUT_AUDIO_TRANSFER_STATES = {
+  CONNECTED: 'connected',
+  DISCONNECTED: 'disconnected',
+  RETURNING: 'returning',
+};
+
 class AudioManager {
   constructor() {
     this._inputDevice = {
       value: DEFAULT_INPUT_DEVICE_ID,
       tracker: new Tracker.Dependency(),
+    };
+
+    this._breakoutAudioTransferStatus = {
+      status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+      breakoutMeetingId: null,
     };
 
     this.defineProperties({
@@ -50,21 +61,25 @@ class AudioManager {
       outputDeviceId: null,
       muteHandle: null,
       autoplayBlocked: false,
+      isReconnecting: false,
     });
 
     this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
+
+    this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
   }
 
-  init(userData) {
+  init(userData, audioEventHandler) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
     this.userData = userData;
     this.initialized = true;
+    this.audioEventHandler = audioEventHandler;
   }
 
   setAudioMessages(messages, intl) {
@@ -337,6 +352,10 @@ class AudioManager {
       window.parent.postMessage({ response: 'joinedAudio' }, '*');
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
+      this.audioEventHandler({
+        name: 'started',
+        isListenOnly: this.isListenOnly,
+      });
       if (ENABLE_NETWORK_MONITORING) this.monitor();
     }
   }
@@ -389,12 +408,23 @@ class AudioManager {
       } = response;
 
       if (status === STARTED) {
+        this.isReconnecting = false;
         this.onAudioJoin();
         resolve(STARTED);
       } else if (status === ENDED) {
+        this.isReconnecting = false;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        });
         logger.info({ logCode: 'audio_ended' }, 'Audio ended without issue');
         this.onAudioExit();
       } else if (status === FAILED) {
+        this.isReconnecting = false;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
@@ -412,10 +442,20 @@ class AudioManager {
           this.onAudioExit();
         }
       } else if (status === RECONNECTING) {
+        this.isReconnecting = true;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
         logger.info({ logCode: 'audio_reconnecting' }, 'Attempting to reconnect audio');
         this.notify(this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO), true);
         this.playHangUpSound();
       } else if (status === AUTOPLAY_BLOCKED) {
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
+        this.isReconnecting = false;
         this.autoplayBlocked = true;
         this.onAudioJoin();
         resolve(AUTOPLAY_BLOCKED);
@@ -521,6 +561,34 @@ class AudioManager {
       ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
   }
 
+  /**
+   * Sets the current status for breakout audio transfer
+   * @param {Object} newStatus                  The status Object to be set for
+   *                                            audio transfer.
+   * @param {string} newStatus.breakoutMeetingId The meeting id of the current
+   *                                            breakout audio transfer.
+   * @param {string} newStatus.status           The status of the current audio
+   *                                            transfer. Valid values are
+   *                                            'connected', 'disconnected' and
+   *                                            'returning'.
+   */
+  setBreakoutAudioTransferStatus(newStatus) {
+    const currentStatus = this._breakoutAudioTransferStatus;
+    const { breakoutMeetingId, status } = newStatus;
+
+    if (typeof breakoutMeetingId === 'string') {
+      currentStatus.breakoutMeetingId = breakoutMeetingId;
+    }
+
+    if (typeof status === 'string') {
+      currentStatus.status = status;
+    }
+  }
+
+  getBreakoutAudioTransferStatus() {
+    return this._breakoutAudioTransferStatus;
+  }
+
   set userData(value) {
     this._userData = value;
   }
@@ -619,12 +687,14 @@ class AudioManager {
     this.setSenderTrackEnabled(true);
   }
 
-  playAlertSound (url) {
+  playAlertSound(url) {
     if (!url) {
       return Promise.resolve();
     }
 
     const audioAlert = new Audio(url);
+
+    audioAlert.addEventListener('ended', () => { audioAlert.src = null; });
 
     if (this.outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
       return audioAlert
@@ -633,6 +703,10 @@ class AudioManager {
     }
 
     return audioAlert.play();
+  }
+
+  async updateAudioConstraints(constraints) {
+    await this.bridge.updateAudioConstraints(constraints);
   }
 }
 

@@ -33,7 +33,7 @@ const audioEventHandler = (event) => {
 
   switch (event.name) {
     case 'started':
-      recoverMicState();
+      if (!event.isListenOnly) recoverMicState();
       break;
     default:
       break;
@@ -124,4 +124,10 @@ export default {
   playAlertSound: url => AudioManager.playAlertSound(url),
   updateAudioConstraints:
     constraints => AudioManager.updateAudioConstraints(constraints),
+  recoverMicState,
+  isReconnecting: () => AudioManager.isReconnecting,
+  setBreakoutAudioTransferStatus: status => AudioManager
+    .setBreakoutAudioTransferStatus(status),
+  getBreakoutAudioTransferStatus: () => AudioManager
+    .getBreakoutAudioTransferStatus(),
 };

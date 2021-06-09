@@ -114,7 +114,7 @@ const ChatContainer = (props) => {
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
   const amIModerator = currentUser.role === ROLE_MODERATOR;
-  const systemMessagesIds = [sysMessagesIds.welcomeId, amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i => i);
+  const systemMessagesIds = [amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i => i);
   const welcomeMessage = systemMessages[sysMessagesIds.welcomeId];
 
   const usingChatContext = useContext(ChatContext);

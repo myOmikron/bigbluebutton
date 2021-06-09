@@ -12,6 +12,7 @@ import TimeWindowList from './time-window-list/container';
 import ChatDropdownContainer from './chat-dropdown/container';
 import { UserSentMessageCollection } from './service';
 import Auth from '/imports/ui/services/auth';
+import TimeWindowChatItem from './time-window-list/time-window-chat-item/container';
 
 const ELEMENT_ID = 'chat-messages';
 
@@ -51,6 +52,7 @@ const Chat = (props) => {
     syncing,
     syncedPercent,
     lastTimeWindowValuesBuild,
+    welcomeMessage
   } = props;
 
   const userSentMessage = UserSentMessageCollection.findOne({ userId: Auth.userID, sent: true });
@@ -109,6 +111,19 @@ const Chat = (props) => {
             )
         }
       </header>
+      {
+        chatID === 'public' ? (
+          <TimeWindowChatItem
+            key={"where is this used?"}
+            message={welcomeMessage}
+            messageId={welcomeMessage.id}
+            chatAreaId={ELEMENT_ID}
+            scrollArea={null}
+            dispatch={dispatch}
+            chatId={chatID}
+          />
+	) : ""
+      }
       <TimeWindowList
         id={ELEMENT_ID}
         chatId={chatID}

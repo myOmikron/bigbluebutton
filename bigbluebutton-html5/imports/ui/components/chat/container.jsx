@@ -115,6 +115,7 @@ const ChatContainer = (props) => {
   const currentUser = users[Auth.meetingID][Auth.userID];
   const amIModerator = currentUser.role === ROLE_MODERATOR;
   const systemMessagesIds = [sysMessagesIds.welcomeId, amIModerator && modOnlyMessage && sysMessagesIds.moderatorId].filter(i => i);
+  const welcomeMessage = systemMessages[sysMessagesIds.welcomeId];
 
   const usingChatContext = useContext(ChatContext);
   const usingGroupChatContext = useContext(GroupChatContext);
@@ -227,7 +228,8 @@ const ChatContainer = (props) => {
       syncedPercent: contextChat?.syncedPercent,
       chatName,
       lastTimeWindowValuesBuild,
-      partnerIsLoggedOut
+      partnerIsLoggedOut,
+      welcomeMessage
     }}>
       {children}
     </Chat>
